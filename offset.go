@@ -40,8 +40,8 @@ func distance(a, b Point) float32 {
 
 func rot90CW(p Point) Point { return Pt(+p.Y, -p.X) }
 
-// OffsetCurves returns the offset curves d units to the right and left of s.
-func OffsetCurves(s Segment, d float32) (right, left []Segment) {
+// offsetCurves returns the offset curves d units to the right and left of s.
+func offsetCurves(s Segment, d float32) (right, left []Segment) {
 	for _, piece := range s.splitAtExtrema() {
 		if simpleEnough(piece) {
 			right = append(right, simpleOffset(piece, d))

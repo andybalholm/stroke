@@ -17,7 +17,7 @@ func strokeContour(c []Segment, opt Options) (outer, inner []Segment) {
 		if s.CP1 == s.Start && s.CP2 == s.Start && s.End == s.Start {
 			continue
 		}
-		right, left := OffsetCurves(s, halfWidth)
+		right, left := offsetCurves(s, halfWidth)
 		if len(outer) > 0 && outer[len(outer)-1].End != right[0].Start {
 			j := join(outer[len(outer)-1].End, right[0].Start, s.Start, opt)
 			outer = append(outer, j...)
