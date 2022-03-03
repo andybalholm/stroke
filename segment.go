@@ -5,8 +5,7 @@ package stroke
 
 import (
 	"math"
-
-	"golang.org/x/exp/slices"
+	"sort"
 )
 
 // A Segment is a cubic bezier curve (or a line segment that has been converted
@@ -123,13 +122,43 @@ func (s Segment) extrema() []float32 {
 			result[i] = 0
 		}
 	}
-	slices.Sort(result)
-	return slices.Compact(result)
+	sort.Sort(float32Slice(result))
+	return compact(result)
+}
+
+type float32Slice []float32
+
+func (f float32Slice) Len() int {
+	return len(f)
+}
+
+func (f float32Slice) Less(i, j int) bool {
+	return f[i] < f[j]
+}
+
+func (f float32Slice) Swap(i, j int) {
+	f[i], f[j] = f[j], f[i]
 }
 
 // interpolate returns a point between a and b, with the ratio specified by t.
 func interpolate(t float32, a, b Point) Point {
 	return a.Mul(1 - t).Add(b.Mul(t))
+}
+
+func compact(s []float32) []float32 {
+	if len(s) == 0 {
+		return s
+	}
+	i := 1
+	last := s[0]
+	for _, v := range s[1:] {
+		if v != last {
+			s[i] = v
+			i++
+			last = v
+		}
+	}
+	return s[:i]
 }
 
 // Split splits s into two segments with de Casteljau's algorithm, at t.

@@ -2,8 +2,6 @@ package stroke
 
 import (
 	"testing"
-
-	"golang.org/x/exp/slices"
 )
 
 var tangentTests = []struct {
@@ -62,10 +60,22 @@ var extremaTests = []struct {
 func TestExtrema(t *testing.T) {
 	for _, c := range extremaTests {
 		extrema := c.segment.extrema()
-		if !slices.Equal(extrema, c.extrema) {
+		if !float32SlicesEqual(extrema, c.extrema) {
 			t.Errorf("extrema for %v: got %v, want %v", c.segment, extrema, c.extrema)
 		}
 	}
+}
+
+func float32SlicesEqual(a, b []float32) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 var lengthTests = []struct {
