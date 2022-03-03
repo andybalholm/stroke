@@ -3,33 +3,32 @@ package stroke
 import (
 	"testing"
 
-	"gioui.org/f32"
 	"golang.org/x/exp/slices"
 )
 
 var tangentTests = []struct {
 	segment Segment
-	t0, t1  f32.Point
+	t0, t1  Point
 }{
 	{
 		segment: Segment{
-			Start: f32.Pt(119, 100),
-			CP1:   f32.Pt(25, 190),
-			CP2:   f32.Pt(210, 250),
-			End:   f32.Pt(210, 30),
+			Start: Pt(119, 100),
+			CP1:   Pt(25, 190),
+			CP2:   Pt(210, 250),
+			End:   Pt(210, 30),
 		},
-		t0: f32.Pt(-0.72230804, 0.69157153),
-		t1: f32.Pt(0, -1),
+		t0: Pt(-0.72230804, 0.69157153),
+		t1: Pt(0, -1),
 	},
 	{
 		segment: Segment{
-			Start: f32.Pt(25, 190),
-			CP1:   f32.Pt(25, 190),
-			CP2:   f32.Pt(210, 250),
-			End:   f32.Pt(210, 30),
+			Start: Pt(25, 190),
+			CP1:   Pt(25, 190),
+			CP2:   Pt(210, 250),
+			End:   Pt(210, 30),
 		},
-		t0: f32.Pt(0.95122284, 0.3085047),
-		t1: f32.Pt(0, -1),
+		t0: Pt(0.95122284, 0.3085047),
+		t1: Pt(0, -1),
 	},
 }
 
@@ -51,10 +50,10 @@ var extremaTests = []struct {
 }{
 	{
 		segment: Segment{
-			Start: f32.Pt(110, 150),
-			CP1:   f32.Pt(25, 190),
-			CP2:   f32.Pt(210, 250),
-			End:   f32.Pt(210, 30),
+			Start: Pt(110, 150),
+			CP1:   Pt(25, 190),
+			CP2:   Pt(210, 250),
+			End:   Pt(210, 30),
 		},
 		extrema: []float32{0, 0.06666667, 0.18681319, 0.43785095, 0.5934066, 1},
 	},
@@ -75,48 +74,48 @@ var lengthTests = []struct {
 }{
 	{
 		segment: Segment{
-			Start: f32.Pt(0, 0),
-			CP1:   f32.Pt(25, 100),
-			CP2:   f32.Pt(75, 100),
-			End:   f32.Pt(100, 0),
+			Start: Pt(0, 0),
+			CP1:   Pt(25, 100),
+			CP2:   Pt(75, 100),
+			End:   Pt(100, 0),
 		},
 		length: 190.04332968932817,
 	},
 	{
 		segment: Segment{
-			Start: f32.Pt(0, 0),
-			CP1:   f32.Pt(50, 0),
-			CP2:   f32.Pt(100, 50),
-			End:   f32.Pt(100, 100),
+			Start: Pt(0, 0),
+			CP1:   Pt(50, 0),
+			CP2:   Pt(100, 50),
+			End:   Pt(100, 100),
 		},
 		length: 154.8852074945903,
 	},
 	{
 		segment: Segment{
-			Start: f32.Pt(0, 0),
-			CP1:   f32.Pt(50, 0),
-			CP2:   f32.Pt(100, 0),
-			End:   f32.Pt(150, 0),
+			Start: Pt(0, 0),
+			CP1:   Pt(50, 0),
+			CP2:   Pt(100, 0),
+			End:   Pt(150, 0),
 		},
 		// straight line; exact result should be 150.
 		length: 149.99999999999991,
 	},
 	{
 		segment: Segment{
-			Start: f32.Pt(0, 0),
-			CP1:   f32.Pt(50, 0),
-			CP2:   f32.Pt(100, 0),
-			End:   f32.Pt(-50, 0),
+			Start: Pt(0, 0),
+			CP1:   Pt(50, 0),
+			CP2:   Pt(100, 0),
+			End:   Pt(-50, 0),
 		},
 		// cusp; exact result should be 150.
 		length: 136.9267662156362,
 	},
 	{
 		segment: Segment{
-			Start: f32.Pt(0, 0),
-			CP1:   f32.Pt(50, 0),
-			CP2:   f32.Pt(100, -50),
-			End:   f32.Pt(-50, 0),
+			Start: Pt(0, 0),
+			CP1:   Pt(50, 0),
+			CP2:   Pt(100, -50),
+			End:   Pt(-50, 0),
 		},
 		// another cusp
 		length: 154.80848416537057,

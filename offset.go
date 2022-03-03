@@ -3,8 +3,6 @@ package stroke
 import (
 	"math"
 	"sort"
-
-	"gioui.org/f32"
 )
 
 // simpleOffset returns a Segment that is approximately parallel to s, d units
@@ -32,15 +30,15 @@ func simpleOffset(s Segment, d float32) Segment {
 	}
 }
 
-func hypot(p f32.Point) float32 {
+func hypot(p Point) float32 {
 	return float32(math.Hypot(float64(p.X), float64(p.Y)))
 }
 
-func distance(a, b f32.Point) float32 {
+func distance(a, b Point) float32 {
 	return hypot(b.Sub(a))
 }
 
-func rot90CW(p f32.Point) f32.Point { return f32.Pt(+p.Y, -p.X) }
+func rot90CW(p Point) Point { return Pt(+p.Y, -p.X) }
 
 // OffsetCurves returns the offset curves d units to the right and left of s.
 func OffsetCurves(s Segment, d float32) (right, left []Segment) {
@@ -69,7 +67,7 @@ func OffsetCurves(s Segment, d float32) (right, left []Segment) {
 	return right, left
 }
 
-func angle(origin, v1, v2 f32.Point) float64 {
+func angle(origin, v1, v2 Point) float64 {
 	d1 := v1.Sub(origin)
 	d2 := v2.Sub(origin)
 	cross := d1.X*d2.Y - d1.Y*d2.X

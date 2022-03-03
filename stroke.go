@@ -2,8 +2,6 @@ package stroke
 
 import (
 	"math"
-
-	"gioui.org/f32"
 )
 
 // strokeContour strokes a single contour (connected series of segments). If c
@@ -65,7 +63,7 @@ func strokeContour(c []Segment, opt Options) (outer, inner []Segment) {
 	}
 }
 
-func roundCap(p1, p2 f32.Point) [2]Segment {
+func roundCap(p1, p2 Point) [2]Segment {
 	const k = 0.551784777779014
 	half := p2.Sub(p1).Mul(0.5)
 	tip := p1.Add(half).Add(rot90CW(half))
@@ -75,7 +73,7 @@ func roundCap(p1, p2 f32.Point) [2]Segment {
 	}
 }
 
-func squareCap(p1, p2 f32.Point) [3]Segment {
+func squareCap(p1, p2 Point) [3]Segment {
 	half := p2.Sub(p1).Mul(0.5)
 	offset := rot90CW(half)
 	return [3]Segment{
@@ -137,7 +135,7 @@ func isCCW(c []Segment) bool {
 // join draws a corner join from start to end, with the style specified by opt.
 // (center is the center of the corner; i.e. the corner of the path being
 // stroked.)
-func join(start, end, center f32.Point, opt Options) []Segment {
+func join(start, end, center Point, opt Options) []Segment {
 	style := opt.Join
 
 	angle := math.Atan2(float64(start.X-center.X), float64(start.Y-center.Y)) -

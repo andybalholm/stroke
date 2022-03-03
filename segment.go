@@ -6,23 +6,20 @@ package stroke
 import (
 	"math"
 
-	"gioui.org/f32"
-	"gioui.org/op"
-	"gioui.org/op/clip"
 	"golang.org/x/exp/slices"
 )
 
 // A Segment is a cubic bezier curve (or a line segment that has been converted
 // into a bezier curve).
 type Segment struct {
-	Start    f32.Point
-	CP1, CP2 f32.Point
-	End      f32.Point
+	Start    Point
+	CP1, CP2 Point
+	End      Point
 }
 
 // LinearSegment returns a line segment connecting a and b, in the form of a
 // cubic bezier curve with collinear control points.
-func LinearSegment(a, b f32.Point) Segment {
+func LinearSegment(a, b Point) Segment {
 	diff := b.Sub(a)
 	spacing := diff.Div(3)
 	return Segment{
@@ -34,7 +31,7 @@ func LinearSegment(a, b f32.Point) Segment {
 }
 
 // QuadraticSegment converts a quadratic bezier segment to a cubic one.
-func QuadraticSegment(start, cp, end f32.Point) Segment {
+func QuadraticSegment(start, cp, end Point) Segment {
 	return Segment{
 		Start: start,
 		CP1:   interpolate(0.6666666666666666, start, cp),
@@ -46,8 +43,8 @@ func QuadraticSegment(start, cp, end f32.Point) Segment {
 // unitVector returns p scaled to that it lies on the unit circle (one unit
 // away from the origin, in the same direction. If p is (0, 0), it is returned
 // unchanged.
-func unitVector(p f32.Point) f32.Point {
-	if p == f32.Pt(0, 0) {
+func unitVector(p Point) Point {
+	if p == Pt(0, 0) {
 		return p
 	}
 	length := float32(math.Hypot(float64(p.X), float64(p.Y)))
@@ -56,7 +53,7 @@ func unitVector(p f32.Point) f32.Point {
 
 // tangents returns the tangent directions at the start and end of s, as unit
 // vectors (points with a magnitude of one unit).
-func (s Segment) tangents() (t0, t1 f32.Point) {
+func (s Segment) tangents() (t0, t1 Point) {
 	if s.CP1 != s.Start {
 		t0 = unitVector(s.CP1.Sub(s.Start))
 	} else if s.CP2 != s.Start {
@@ -131,7 +128,7 @@ func (s Segment) extrema() []float32 {
 }
 
 // interpolate returns a point between a and b, with the ratio specified by t.
-func interpolate(t float32, a, b f32.Point) f32.Point {
+func interpolate(t float32, a, b Point) Point {
 	return a.Mul(1 - t).Add(b.Mul(t))
 }
 
@@ -187,20 +184,4 @@ func reversePath(path []Segment) []Segment {
 		result[len(result)-i-1] = s.reverse()
 	}
 	return result
-}
-
-func ToPathSpec(ops *op.Ops, outline [][]Segment) clip.PathSpec {
-	var path clip.Path
-	path.Begin(ops)
-
-	for _, contour := range outline {
-		path.MoveTo(contour[0].Start)
-		for i, s := range contour {
-			if i > 0 && s.Start != contour[i-1].End {
-				path.LineTo(s.Start)
-			}
-			path.CubeTo(s.CP1, s.CP2, s.End)
-		}
-	}
-	return path.End()
 }
