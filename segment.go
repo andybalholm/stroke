@@ -1,5 +1,10 @@
 // The stroke package provides functions for stroking cubic bezier paths.
 //
+// Unlike many path-stroking implementations, which "flatten" cubic curves to
+// sequences of quadratic curves, or even of straight line segments, it works
+// with cubic curves all the way through. This results in significantly fewer
+// segments in the output.
+//
 // Many of the algorithms come from https://pomax.github.io/bezierinfo/
 package stroke
 
