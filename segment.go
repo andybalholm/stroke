@@ -44,6 +44,29 @@ func QuadraticSegment(start, cp, end Point) Segment {
 	}
 }
 
+// ArcSegments creates a collection of segments representing an arc starting
+// from point p, following an ellipse centered at focal points f1 and f2,
+// through the provided angle (in radians, with positive angles sweeping the
+// ellipse in a counter-clockwise fashion).
+func ArcSegments(p, f1, f2 Point, angle float32) []Segment {
+	var (
+		pen     = p
+		m, nseg = arcTransform(p, f1, f2, angle)
+		segs    = make([]Segment, nseg)
+	)
+
+	for i := range segs {
+		p0 := pen
+		p1 := m.Transform(p0)
+		p2 := m.Transform(p1)
+		ctl := p1.Mul(2).Sub(p0.Add(p2).Mul(.5))
+		segs[i] = QuadraticSegment(pen, ctl, p2)
+		pen = p2
+	}
+
+	return segs
+}
+
 // unitVector returns p scaled to that it lies on the unit circle (one unit
 // away from the origin, in the same direction. If p is (0, 0), it is returned
 // unchanged.
