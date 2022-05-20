@@ -20,7 +20,7 @@ import (
 //
 //	http://spaceroots.org/documents/ellipse/elliptical-arc.pdf
 func arcTransform(p, f1, f2 Point, angle float32) (transform affine2D, segments int) {
-	const segmentsPerCircle = 16
+	const segmentsPerCircle = 8
 	const anglePerSegment = 2 * math.Pi / segmentsPerCircle
 
 	s := angle / anglePerSegment

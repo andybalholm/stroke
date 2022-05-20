@@ -49,19 +49,36 @@ func QuadraticSegment(start, cp, end Point) Segment {
 // through the provided angle (in radians, with positive angles sweeping the
 // ellipse in a counter-clockwise fashion).
 func ArcSegments(p, f1, f2 Point, angle float32) []Segment {
+	if angle == 0 {
+		return nil
+	}
+
 	var (
 		pen     = p
 		m, nseg = arcTransform(p, f1, f2, angle)
 		segs    = make([]Segment, nseg)
+		k       = float32(math.Tan(float64(0.25*angle))) * 4 / 3
+		center  = Point{
+			X: 0.5 * (f1.X + f2.X),
+			Y: 0.5 * (f1.Y + f2.Y),
+		}
 	)
 
+	var rot func(Point) Point
+	switch {
+	case angle < 0:
+		rot = rot90CW
+	case angle > 0:
+		rot = rot90CCW
+	}
+
 	for i := range segs {
-		p0 := pen
-		p1 := m.Transform(p0)
-		p2 := m.Transform(p1)
-		ctl := p1.Mul(2).Sub(p0.Add(p2).Mul(.5))
-		segs[i] = QuadraticSegment(pen, ctl, p2)
-		pen = p2
+		beg := pen
+		end := m.Transform(beg)
+		cp1 := beg.Add(rot(center.Sub(beg)).Mul(k))
+		cp2 := end.Add(rot(end.Sub(center)).Mul(k))
+		segs[i] = Segment{beg, cp1, cp2, end}
+		pen = end
 	}
 
 	return segs

@@ -38,7 +38,8 @@ func distance(a, b Point) float32 {
 	return hypot(b.Sub(a))
 }
 
-func rot90CW(p Point) Point { return Pt(+p.Y, -p.X) }
+func rot90CW(p Point) Point  { return Pt(+p.Y, -p.X) }
+func rot90CCW(p Point) Point { return Pt(-p.Y, +p.X) }
 
 // offsetCurves returns the offset curves d units to the right and left of s.
 func offsetCurves(s Segment, d float32) (right, left []Segment) {
