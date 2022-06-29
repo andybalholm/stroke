@@ -2,6 +2,11 @@ package stroke
 
 import "math"
 
+// heading returns the angle of the line from the origin to p.
+func heading(p Point) float64 {
+	return math.Atan2(float64(p.Y), float64(p.X))
+}
+
 // ArcSegment returns a Segment that approximates an arc of a circle,
 // starting at start, centered at center, and extending angle radians
 // counterclockwise. For a clockwise arc, use a negative angle.
@@ -9,7 +14,7 @@ import "math"
 // using a single segment for an arc longer than half a circle (angle > π)
 // is not recommended (use AppendArc instead).
 func ArcSegment(start, center Point, angle float32) Segment {
-	startAngle := math.Atan2(float64(start.Y-center.Y), float64(start.X-center.X))
+	startAngle := heading(start.Sub(center))
 	endAngle := startAngle + float64(angle)
 	radius := distance(start, center)
 	end := Pt(center.X+radius*float32(math.Cos(endAngle)), center.Y+radius*float32(math.Sin(endAngle)))
@@ -33,6 +38,41 @@ func AppendArc(dst []Segment, start, center Point, angle float32) []Segment {
 		seg := ArcSegment(pos, center, segmentAngle)
 		dst = append(dst, seg)
 		pos = seg.End
+	}
+
+	return dst
+}
+
+// AppendEllipticalArc appends one or more segments to dst, forming an arc of
+// an ellipse starting at start, with foci at f1 and f2, and extending angle
+// radians counterclockwise. For a clockwise arc, use a negative angle.
+func AppendEllipticalArc(dst []Segment, start, f1, f2 Point, angle float32) []Segment {
+	if f1 == f2 {
+		return AppendArc(dst, start, f1, angle)
+	}
+
+	semiMajorAxis := float64(distance(start, f1)+distance(start, f2)) * 0.5
+	center := f1.Add(f2.Sub(f1).Mul(0.5))
+	focalDistance := float64(distance(center, f1))
+	semiMinorAxis := math.Sqrt(semiMajorAxis*semiMajorAxis - focalDistance*focalDistance)
+	majorAxisAngle := heading(f2.Sub(f1))
+
+	var toUnitCircle affine2D
+	toUnitCircle = toUnitCircle.Offset(center.Mul(-1))
+	toUnitCircle = toUnitCircle.Rotate(Pt(0, 0), float32(-majorAxisAngle))
+	toUnitCircle = toUnitCircle.Scale(Pt(0, 0), Pt(float32(1/semiMajorAxis), float32(1/semiMinorAxis)))
+
+	toEllipse := toUnitCircle.Invert()
+
+	var storage [7]Segment
+	unitCircleArc := AppendArc(storage[:0], toUnitCircle.Transform(start), Pt(0, 0), angle)
+	for _, s := range unitCircleArc {
+		dst = append(dst, Segment{
+			Start: toEllipse.Transform(s.Start),
+			CP1:   toEllipse.Transform(s.CP1),
+			CP2:   toEllipse.Transform(s.CP2),
+			End:   toEllipse.Transform(s.End),
+		})
 	}
 
 	return dst
