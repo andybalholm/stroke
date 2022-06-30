@@ -64,7 +64,11 @@ func AppendEllipticalArc(dst []Segment, start, f1, f2 Point, angle float32) []Se
 
 	toEllipse := toUnitCircle.Invert()
 
+	// To avoid a heap allocation, we allocate enough space on the stack to store
+	// a full circle's worth of segments (2π = 6.28, so we need 7 segments if
+	// one radian is the maximum length).
 	var storage [7]Segment
+
 	unitCircleArc := AppendArc(storage[:0], toUnitCircle.Transform(start), Pt(0, 0), angle)
 	for _, s := range unitCircleArc {
 		dst = append(dst, Segment{
