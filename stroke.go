@@ -30,6 +30,10 @@ func strokeContour(c []Segment, opt Options) (outer, inner []Segment) {
 		inner = append(inner, left...)
 	}
 
+	if len(outer) == 0 || len(inner) == 0 {
+		return nil, nil
+	}
+
 	if c[0].Start == c[len(c)-1].End {
 		// The path was closed, so we'll return two separate contours.
 		// But we need to draw a join first.
@@ -90,7 +94,9 @@ func Stroke(path [][]Segment, opt Options) [][]Segment {
 	var result [][]Segment
 	for _, c := range path {
 		outer, inner := strokeContour(c, opt)
-		result = append(result, outer)
+		if outer != nil {
+			result = append(result, outer)
+		}
 		if inner != nil {
 			result = append(result, inner)
 		}
