@@ -62,6 +62,12 @@ func strokeContour(c []Segment, opt Options) (outer, inner []Segment) {
 			outer = append(outer, reversePath(inner)...)
 			cp = squareCap(inner[0].Start, outer[0].Start)
 			outer = append(outer, cp[:]...)
+		case TriangularCap:
+			cp := triangularCap(outer[len(outer)-1].End, inner[len(inner)-1].End)
+			outer = append(outer, cp[:]...)
+			outer = append(outer, reversePath(inner)...)
+			cp = triangularCap(inner[0].Start, outer[0].Start)
+			outer = append(outer, cp[:]...)
 		}
 		return outer, nil
 	}
@@ -87,6 +93,15 @@ func squareCap(p1, p2 Point) [3]Segment {
 	}
 }
 
+func triangularCap(p1, p2 Point) [2]Segment {
+	half := p2.Sub(p1).Mul(0.5)
+	tip := p1.Add(half).Add(rot90CW(half))
+	return [2]Segment{
+		LinearSegment(p1, tip),
+		LinearSegment(tip, p2),
+	}
+}
+
 // Stroke returns outlines for the contours in path. Both in the parameter and
 // in the return value, each element of the slice is a contour (a connected
 // series of segments).
@@ -107,9 +122,10 @@ func Stroke(path [][]Segment, opt Options) [][]Segment {
 type CapStyle int
 
 const (
-	FlatCap   CapStyle = 0
-	RoundCap           = 1
-	SquareCap          = 2
+	FlatCap       CapStyle = 0
+	RoundCap               = 1
+	SquareCap              = 2
+	TriangularCap          = 3
 )
 
 type JoinStyle int
