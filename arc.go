@@ -17,7 +17,8 @@ func ArcSegment(start, center Point, angle float32) Segment {
 	startAngle := heading(start.Sub(center))
 	endAngle := startAngle + float64(angle)
 	radius := distance(start, center)
-	end := Pt(center.X+radius*float32(math.Cos(endAngle)), center.Y+radius*float32(math.Sin(endAngle)))
+	sn, cs := math.Sincos(endAngle)
+	end := Pt(center.X+radius*float32(cs), center.Y+radius*float32(sn))
 
 	k := float32(math.Tan(float64(angle)/4)) * 4 / 3
 	cp1 := start.Add(rot90CW(center.Sub(start)).Mul(k))
