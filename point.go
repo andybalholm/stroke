@@ -37,3 +37,8 @@ func (p Point) Mul(s float32) Point {
 func (p Point) Div(s float32) Point {
 	return Point{X: p.X / s, Y: p.Y / s}
 }
+
+// asComplex returns the complex128 equivalent of p.
+func (p Point) asComplex() complex128 {
+	return complex(float64(p.X), float64(p.Y))
+}

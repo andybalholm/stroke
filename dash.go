@@ -1,6 +1,7 @@
 package stroke
 
 import (
+	"math/cmplx"
 	"sort"
 )
 
@@ -53,23 +54,28 @@ func Dash(path [][]Segment, pattern []float32, phase float32) [][]Segment {
 // It is based on the approximateCubicArcLengthC function from
 // github.com/fonttools/fonttools.
 func (s Segment) length() float32 {
-	v0 := distance(s.Start, s.CP1) * 0.15
-	v1 := hypot(
-		s.Start.Mul(-0.558983582205757).
-			Add(s.CP1.Mul(0.325650248872424)).
-			Add(s.CP2.Mul(0.208983582205757)).
-			Add(s.End.Mul(0.024349751127576)),
-	)
-	v2 := hypot(s.End.Sub(s.Start).Add(s.CP2).Sub(s.CP1)) * 0.26666666666666666
-	v3 := hypot(
-		s.Start.Mul(-0.024349751127576).
-			Sub(s.CP1.Mul(0.208983582205757)).
-			Sub(s.CP2.Mul(0.325650248872424)).
-			Add(s.End.Mul(0.558983582205757)),
-	)
-	v4 := distance(s.End, s.CP2) * 0.15
+	start := s.Start.asComplex()
+	cp1 := s.CP1.asComplex()
+	cp2 := s.CP2.asComplex()
+	end := s.End.asComplex()
 
-	return v0 + v1 + v2 + v3 + v4
+	v0 := cmplx.Abs(cp1-start) * 0.15
+	v1 := cmplx.Abs(
+		-0.558983582205757*start +
+			0.325650248872424*cp1 +
+			0.208983582205757*cp2 +
+			0.024349751127576*end,
+	)
+	v2 := cmplx.Abs(end-start+cp2-cp1) * 0.26666666666666666
+	v3 := cmplx.Abs(
+		-0.024349751127576*start -
+			0.208983582205757*cp1 -
+			0.325650248872424*cp2 +
+			0.558983582205757*end,
+	)
+	v4 := cmplx.Abs(end-cp2) * 0.15
+
+	return float32(v0 + v1 + v2 + v3 + v4)
 }
 
 // splitAtLength splits s into two sections. The first one (s1) has the
@@ -83,6 +89,10 @@ func (s Segment) splitAtLength(length float32) (s1, s2 Segment) {
 	})
 	if n == steps {
 		return s, Segment{}
+	}
+	if n == 0 {
+		// Ensure that s1 is not empty.
+		n = 1
 	}
 	return s.Split(float32(n) / steps)
 }
